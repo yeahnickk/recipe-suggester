@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Home, 
   History, 
@@ -32,14 +32,83 @@ function RecipeSuggester() {
   const [recipes, setRecipes] = useState([]);
   const [isScanning, setIsScanning] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Sample recipe data
+  const sampleRecipes = [
+    {
+      id: 1,
+      name: 'Tofu Buddha Bowl',
+      cuisine: 'Asian Fusion',
+      cookTime: 25,
+      calories: 450,
+      difficulty: 'Easy',
+      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',
+      matchPercentage: '100% Match'
+    },
+    {
+      id: 2,
+      name: 'Mediterranean Chickpea Bowl',
+      cuisine: 'Mediterranean',
+      cookTime: 20,
+      calories: 380,
+      difficulty: 'Easy',
+      image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd',
+      matchPercentage: '100% Match'
+    },
+    {
+      id: 3,
+      name: 'Black Bean Tacos',
+      cuisine: 'Mexican',
+      cookTime: 30,
+      calories: 420,
+      difficulty: 'Easy',
+      image: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b',
+      matchPercentage: '100% Match'
+    },
+    {
+      id: 4,
+      name: 'Miso Glazed Salmon Bowl',
+      cuisine: 'Japanese Fusion',
+      cookTime: 25,
+      calories: 520,
+      difficulty: 'Medium',
+      image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288',
+      matchPercentage: '100% Match'
+    }
+  ];
+
+  // Add useEffect to load recipes when showing suggestions
+  useEffect(() => {
+    if (showRecipeSuggestions) {
+      setIsLoading(true);
+      // Simulate API delay
+      setTimeout(() => {
+        setRecipes(sampleRecipes);
+        setIsLoading(false);
+      }, 1500);
+    }
+  }, [showRecipeSuggestions]);
 
   const handleScanFridge = () => {
     setIsScanning(true);
   };
 
-  const handleScanComplete = (items) => {
+  const handleScanComplete = async (items) => {
     setIsScanning(false);
     setDetectedItems(items);
+    setIsLoading(true);
+    
+    try {
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setRecipes(sampleRecipes);
+    } catch (error) {
+      console.error('Failed to fetch recipes:', error);
+    } finally {
+      setIsLoading(false);
+    }
+    
     setShowRecipeSuggestions(true);
   };
 
@@ -49,7 +118,14 @@ function RecipeSuggester() {
 
   const handleScanHistoryClick = (scan) => {
     setDetectedItems(scan.items || []);
-    setShowRecipeSuggestions(true);
+    setIsLoading(true);
+    
+    // Load recipes with a loading state
+    setTimeout(() => {
+      setRecipes(sampleRecipes);
+      setIsLoading(false);
+      setShowRecipeSuggestions(true);
+    }, 1500);
   };
 
   const handleTabChange = (tab) => {
@@ -76,6 +152,7 @@ function RecipeSuggester() {
                 recipes={recipes || []}
                 onBackClick={() => setShowRecipeSuggestions(false)}
                 onRecipeClick={handleRecipeClick}
+                isLoading={isLoading}
               />
             ) : (
               activeTab === 'home' ? (
